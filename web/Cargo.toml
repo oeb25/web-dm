@@ -1,0 +1,10 @@
+[package]
+name = "web"
+version = "0.1.0"
+authors = ["Oliver Bøving <oliverboving@gmail.com>"]
+edition = '2018'
+
+[dependencies]
+yew = "*"
+stdweb = "*"
+solver = { path = "../solver" }
