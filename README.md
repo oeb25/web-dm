@@ -12,17 +12,18 @@ This tool was manly used to serve me, and solve the problems I encouterd, in the
 
 ## Logic syntax
 
-+-------+--------+
+The input supports both traditional symbols for expressing logic, but also has more common charactors, for easier input.
+
 | Logic | Web DM |
-+-------+--------+
-|   ¬x  |   !x   |
-| a ∨ b |  a | b |
-| a ∧ b |  a & b |
-| a → b |  a > b |
-| a ↔ b |  a = b |
-| ∃x(x) |  .x(x) |
-| ∀x(x) |  \x(x) |
-+-------+--------+
+| -----:| ------:|
+|  `¬x` |  `!x`  |
+|`a ∨ b`|`a \| b`|
+|`a ∧ b`| `a & b`|
+|`a → b`| `a > b`|
+|`a ↔ b`| `a = b`|
+|`∃x(x)`| `.x(x)`|
+|`∀x(x)`| `\x(x)`|
+
 
 ## Building and running
 
