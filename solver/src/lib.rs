@@ -1,4 +1,4 @@
-#![feature(box_syntax, slice_patterns)]
+#![feature(box_syntax, slice_patterns, exclusive_range_pattern)]
 
 use indexmap::{IndexMap, IndexSet};
 use std::collections::HashSet;
@@ -22,20 +22,20 @@ impl Connective {
         match self {
             Connective::Not(x) => x.all_variables_helper(ignore, set),
             Connective::ForAll(r, x) | Connective::Exists(r, x) => {
-              let mut ignore = ignore.clone();
-              ignore.insert(r.clone());
-              x.all_variables_helper(&mut ignore, set)
-            },
+                let mut ignore = ignore.clone();
+                ignore.insert(r.clone());
+                x.all_variables_helper(&mut ignore, set)
+            }
             Connective::Var(x) => {
-              if !ignore.contains(x) {
-                set.insert(x.to_string());
-              }
+                if !ignore.contains(x) {
+                    set.insert(x.to_string());
+                }
             }
             Connective::Predicate(_, args) => {
                 for arg in args {
-                  if !ignore.contains(arg) {
-                    set.insert(arg.to_string());
-                  }
+                    if !ignore.contains(arg) {
+                        set.insert(arg.to_string());
+                    }
                 }
             }
             Connective::And(a, b)
@@ -58,15 +58,15 @@ impl Connective {
         match self {
             Connective::Not(x) => x.all_atomics_helper(ignore, set),
             Connective::ForAll(r, x) | Connective::Exists(r, x) => {
-              let mut ignore = ignore.clone();
-              ignore.insert(Connective::Var(r.clone()));
-              x.all_atomics_helper(&mut ignore, set)
-            },
-            Connective::ForAll(r, x) | Connective::Exists(r, x) => {},
+                let mut ignore = ignore.clone();
+                ignore.insert(Connective::Var(r.clone()));
+                x.all_atomics_helper(&mut ignore, set)
+            }
+            Connective::ForAll(r, x) | Connective::Exists(r, x) => {}
             Connective::Var(_) | Connective::Predicate(_, _) => {
-              if !ignore.contains(self) {
-                set.insert(self.clone());
-              }
+                if !ignore.contains(self) {
+                    set.insert(self.clone());
+                }
             }
             Connective::And(a, b)
             | Connective::Or(a, b)
@@ -88,7 +88,7 @@ impl Connective {
                 } else {
                     x.all_sub_connectives(false)
                 }
-            },
+            }
             Connective::Var(_) => vec![],
             Connective::Predicate(_, _) => vec![],
             Connective::And(a, b)
@@ -134,7 +134,7 @@ impl Connective {
             Connective::Implicate(_, _) => "→",
             Connective::Biimplicate(_, _) => "↔",
             Connective::ForAll(_, _) => "∀",
-            Connective::Exists(_, _) => "∃"
+            Connective::Exists(_, _) => "∃",
         }
     }
 
@@ -267,11 +267,15 @@ impl Connective {
                     .chain(sub_connectives.iter().map(|p| f(p)))
                     .collect()
             })
-            .next() {
-                headers
-            } else {
-                return Table { headers: vec![], rows: vec![] }
+            .next()
+        {
+            headers
+        } else {
+            return Table {
+                headers: vec![],
+                rows: vec![],
             };
+        };
 
         let rows = permutations
             .iter()
@@ -322,8 +326,12 @@ impl Connective {
                 Connective::Biimplicate(box a.substitude(x, y), box b.substitude(x, y))
             }
             Connective::ForAll(xx, _) | Connective::Exists(xx, _) if xx == x => self.clone(),
-            Connective::ForAll(xx, inner) => Connective::ForAll(xx.to_string(), box inner.substitude(x, y)),
-            Connective::Exists(xx, inner) => Connective::Exists(xx.to_string(), box inner.substitude(x, y)),
+            Connective::ForAll(xx, inner) => {
+                Connective::ForAll(xx.to_string(), box inner.substitude(x, y))
+            }
+            Connective::Exists(xx, inner) => {
+                Connective::Exists(xx.to_string(), box inner.substitude(x, y))
+            }
         }
     }
 
@@ -385,7 +393,7 @@ pub struct Table {
 
 pub fn all_permutations(variables: &[String]) -> Vec<IndexMap<String, bool>> {
     match variables {
-        [head, rest..] => {
+        [head, rest @ ..] => {
             let variable = head.to_string();
             let mut permutations = vec![];
             for perm in all_permutations(rest) {

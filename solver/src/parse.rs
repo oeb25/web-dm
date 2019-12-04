@@ -57,17 +57,17 @@ fn parse3(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
     let (left, rest) = parse3(tokens)?;
 
     match rest {
-        [Token::Comma, rest..] => {
+        [Token::Comma, rest @ ..] => {
             let mut args = vec![left];
             let mut rest = rest;
             loop {
                 let (right, inner_rest) = parse3(rest)?;
                 args.push(right);
                 match inner_rest {
-                    [Token::Comma, inner_rest..] => {
+                    [Token::Comma, inner_rest @ ..] => {
                         rest = inner_rest;
                     }
-                    [Token::Slash, rest..] => {
+                    [Token::Slash, rest @ ..] => {
                         let (right, rest) = parse3(rest)?;
                         let predicate = Connective::All(args);
                         return Ok((Connective::Consequence(box predicate, box right), rest));
@@ -79,7 +79,7 @@ fn parse3(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
                 }
             }
         }
-        [Token::Slash, rest..] => {
+        [Token::Slash, rest @ ..] => {
             let (right, rest) = parse3(rest)?;
             return Ok((Connective::Consequence(box left, box right), rest));
         }
@@ -91,11 +91,11 @@ fn parse3(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
 fn parse3(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
     let (left, rest) = parse2(tokens)?;
     Ok(match rest {
-        [Token::Implicate, rest..] => {
+        [Token::Implicate, rest @ ..] => {
             let (right, rest) = parse3(rest)?;
             (Connective::Implicate(box left, box right), rest)
         }
-        [Token::Biimplicate, rest..] => {
+        [Token::Biimplicate, rest @ ..] => {
             let (right, rest) = parse3(rest)?;
             (Connective::Biimplicate(box left, box right), rest)
         }
@@ -107,11 +107,11 @@ fn parse2(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
     let (left, rest) = parse1(tokens)?;
 
     Ok(match rest {
-        [Token::And, rest..] => {
+        [Token::And, rest @ ..] => {
             let (right, rest) = parse2(rest)?;
             (Connective::And(box left, box right), rest)
         }
-        [Token::Or, rest..] => {
+        [Token::Or, rest @ ..] => {
             let (right, rest) = parse2(rest)?;
             (Connective::Or(box left, box right), rest)
         }
@@ -121,11 +121,11 @@ fn parse2(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
 
 fn parse1(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
     Ok(match tokens {
-        [Token::Not, rest..] => {
+        [Token::Not, rest @ ..] => {
             let (expr, rest) = parse1(rest)?;
             (Connective::Not(box expr), rest)
         }
-        [Token::ForAll, name, rest..] => {
+        [Token::ForAll, name, rest @ ..] => {
             let name = if let Token::Var(name) = name {
                 name
             } else {
@@ -136,7 +136,7 @@ fn parse1(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
 
             (Connective::ForAll(name.clone(), box right), rest)
         }
-        [Token::Exists, name, rest..] => {
+        [Token::Exists, name, rest @ ..] => {
             let name = match name {
                 Token::Var(name) => name,
                 x => Err(ParseError::UnexpectedToken(Some(x.clone())))?,
@@ -146,16 +146,16 @@ fn parse1(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
 
             (Connective::Exists(name.clone(), box right), rest)
         }
-        [Token::Var(x), Token::OpenParen, Token::Var(arg), rest..] => {
+        [Token::Var(x), Token::OpenParen, Token::Var(arg), rest @ ..] => {
             let mut rest = rest;
             let mut args = vec![arg.clone()];
             loop {
                 match rest {
-                    [Token::Comma, Token::Var(arg), nrest..] => {
+                    [Token::Comma, Token::Var(arg), nrest @ ..] => {
                         args.push(arg.clone());
                         rest = nrest;
                     }
-                    [Token::CloseParen, nrest..] => {
+                    [Token::CloseParen, nrest @ ..] => {
                         rest = nrest;
                         break;
                     }
@@ -164,11 +164,11 @@ fn parse1(tokens: &[Token]) -> ParseResult<(Connective, &[Token])> {
             }
             (Connective::Predicate(x.clone(), args), rest)
         }
-        [Token::Var(x), rest..] => (Connective::Var(x.to_string()), rest),
-        [Token::OpenParen, rest..] => {
+        [Token::Var(x), rest @ ..] => (Connective::Var(x.to_string()), rest),
+        [Token::OpenParen, rest @ ..] => {
             let (expr, rest) = parse_top(rest)?;
             match rest {
-                [Token::CloseParen, rest..] => (expr, rest),
+                [Token::CloseParen, rest @ ..] => (expr, rest),
                 x => return Err(ParseError::UncosedParen(x.get(0).cloned())),
             }
         }
