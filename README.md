@@ -27,15 +27,21 @@ The input supports both traditional symbols for expressing logic, but also has m
 
 ## Building and running
 
-You need to have Rust installed, and `cargo-web` installed (see [yew](https://github.com/DenisKolodin/yew#development-setup) for details).
+To run as server
 
-Then `cd` to `web/` and run
-
-```
+```bash
+cargo install cargo-web # see [yew](https://github.com/DenisKolodin/yew#development-setup) for details
+cd web/
 cargo web start --target=wasm32-unknown-unknown
 ```
 
 When this is complete, you can now access the app at [`[::1]:8000`](http://[::1]:8000/).
+
+```bash
+cargo install cargo-web # see [yew](https://github.com/DenisKolodin/yew#development-setup) for details
+cd web/
+cargo web build --target=wasm32-unknown-unknown
+```
 
 ## Support
 
